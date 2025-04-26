@@ -1,0 +1,19 @@
+package com.manager.workout.workout.repositories;
+
+import com.manager.workout.workout.models.Aluno;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+import java.util.UUID;
+
+@Repository
+public interface AlunoRepository extends JpaRepository<Aluno, UUID> {
+
+    public Optional<Aluno> findByEmail(String email);
+
+    @Query("SELECT a FROM Aluno a WHERE a.nome = :nome")
+    Optional<Aluno> findByNome(@Param("nome") String nome);
+}
