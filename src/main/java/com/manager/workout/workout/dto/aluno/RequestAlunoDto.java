@@ -1,15 +1,14 @@
-package com.manager.workout.workout.dto;
+package com.manager.workout.workout.dto.aluno;
 
 import com.manager.workout.workout.models.Academia;
 import com.manager.workout.workout.models.Aluno;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 
 public record RequestAlunoDto(
         String nome,
         @Email String email,
         String senha,
-        Academia academia) {
+        Academia academia){
     public Aluno toEntity(){
         return new Aluno(this.nome(), this.email(), this.senha(), this.academia());
     }

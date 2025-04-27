@@ -27,9 +27,6 @@ public class Aluno {
     @JoinColumn(name = "academia_id")
     private Academia academia;
 
-    @OneToMany(mappedBy = "aluno", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Treino> treino;
-
     public Aluno(String nome, String email, String senha, Academia academia) {
         this.nome = nome;
         this.email = email;

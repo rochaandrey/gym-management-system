@@ -1,4 +1,4 @@
-package com.manager.workout.workout.dto;
+package com.manager.workout.workout.dto.aluno;
 
 import com.manager.workout.workout.models.Academia;
 import com.manager.workout.workout.models.enumns.Atividade;

@@ -1,9 +1,9 @@
 package com.manager.workout.workout.controllers;
 
-import com.manager.workout.workout.dto.RequestAlunoDto;
-import com.manager.workout.workout.dto.ResponseAlunoDto;
-import com.manager.workout.workout.models.Aluno;
+import com.manager.workout.workout.dto.aluno.RequestAlunoDto;
+import com.manager.workout.workout.dto.aluno.ResponseAlunoDto;
 import com.manager.workout.workout.repositories.AlunoRepository;
+import com.manager.workout.workout.service.AlunoService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
@@ -22,77 +22,42 @@ public class AlunoController {
     @Autowired
     private AlunoRepository alunoRepository;
 
+    @Autowired
+    private AlunoService alunoService;
+
     @PostMapping
-    @Transactional
-    public ResponseEntity<ResponseAlunoDto> create(@RequestBody RequestAlunoDto requestAlunoDto, UriComponentsBuilder uriBuilder){
-        Aluno aluno = requestAlunoDto.toEntity();
-        alunoRepository.save(aluno);
+    public ResponseEntity<ResponseAlunoDto> createClient(@RequestBody RequestAlunoDto requestAlunoDto, UriComponentsBuilder uriBuilder){
+        ResponseAlunoDto responseAlunoDto = alunoService.create(requestAlunoDto);
         var uri = uriBuilder
                 .path("/api/aluno/{id}")
-                .buildAndExpand(aluno.getId())
+                .buildAndExpand(responseAlunoDto.uuid())
                 .toUri();
-        return ResponseEntity.created(uri).body(requestAlunoDto.toResponseAlunoDto(aluno));
+        return ResponseEntity.created(uri).body(responseAlunoDto);
     }
 
     @GetMapping
-    public ResponseEntity<List<ResponseAlunoDto>> getAll(){
-        List<ResponseAlunoDto> alunoList = alunoRepository.findAll()
-                .stream()
-                .map(aluno -> new ResponseAlunoDto(
-                        aluno.getId(),
-                        aluno.getNome(),
-                        aluno.getEmail(),
-                        aluno.getAcademia(),
-                        aluno.getAtividade()
-                ))
-                .toList();
-        return ResponseEntity.ok(alunoList);
+    public ResponseEntity<List<ResponseAlunoDto>> getAllClients(){
+        return ResponseEntity.ok(alunoService.getAll());
     }
 
     @GetMapping("/{uuid}")
-    public ResponseEntity<ResponseAlunoDto> getByEmail(@PathVariable(value = "uuid") UUID uuid){
-        return alunoRepository.findById(uuid)
-                .map(aluno -> ResponseEntity.ok(
-                        new ResponseAlunoDto(
-                                aluno.getId(),
-                                aluno.getNome(),
-                                aluno.getEmail(),
-                                aluno.getAcademia(),
-                                aluno.getAtividade()
-                        )
-                ))
+    public ResponseEntity<ResponseAlunoDto> getClientById(@PathVariable(value = "uuid") UUID uuid){
+        return alunoService.getById(uuid)
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-
 
     @GetMapping("/busca")
-    public ResponseEntity<ResponseAlunoDto> getByEmail(@PathVariable(value = "email") String email){
-        return alunoRepository.findByEmail(email)
-                .map(aluno -> ResponseEntity.ok(
-                        new ResponseAlunoDto(
-                                aluno.getId(),
-                                aluno.getNome(),
-                                aluno.getEmail(),
-                                aluno.getAcademia(),
-                                aluno.getAtividade()
-                        )
-                ))
-                .orElse(ResponseEntity.notFound().build());
-    }
+    public ResponseEntity<List<ResponseAlunoDto>> getClientByNameOrEmail(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) String email){
+        List<ResponseAlunoDto> responseAlunoDtoList = alunoService.getByParams(nome, email);
 
-    @GetMapping("busca/{email}")
-    public ResponseEntity<ResponseAlunoDto> getByNome(@RequestParam(value = "nome") String nome){
-        return alunoRepository.findByNome(nome)
-                .map(aluno -> ResponseEntity.ok(
-                        new ResponseAlunoDto(
-                                aluno.getId(),
-                                aluno.getNome(),
-                                aluno.getEmail(),
-                                aluno.getAcademia(),
-                                aluno.getAtividade()
-                        )
-                ))
-                .orElse(ResponseEntity.notFound().build());
+        if(responseAlunoDtoList.isEmpty()){
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(responseAlunoDtoList);
     }
 
     @DeleteMapping("/{id}")
@@ -107,7 +72,7 @@ public class AlunoController {
 
     @PutMapping("/{id}")
     @Transactional
-    public ResponseEntity<ResponseAlunoDto> update(@PathVariable (value = "id") UUID id, @RequestBody @Valid RequestAlunoDto requestAlunoDto){;
+    public ResponseEntity<ResponseAlunoDto> update(@PathVariable (value = "id") UUID id, @RequestBody @Valid RequestAlunoDto requestAlunoDto){
         return alunoRepository.findById(id)
                 .map(aluno-> {
                     BeanUtils.copyProperties(requestAlunoDto,aluno);
