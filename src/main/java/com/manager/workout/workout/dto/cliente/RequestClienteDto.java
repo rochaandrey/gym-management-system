@@ -7,9 +7,8 @@ import jakarta.validation.constraints.Email;
 public record RequestClienteDto(
         String nome,
         @Email String email,
-        String senha,
         Academia academia){
     public Cliente toEntity(){
-        return new Cliente(this.nome(), this.email(), this.senha(), this.academia());
+        return new Cliente(this.nome(), this.email(), this.academia());
     }
 }

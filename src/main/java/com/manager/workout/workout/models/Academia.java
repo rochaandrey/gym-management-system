@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
+@Builder
 @Getter
 @Setter
 @AllArgsConstructor
@@ -24,8 +25,12 @@ public class Academia {
     private String email;
 
     @Column(length = 80, nullable = false)
-    private String senha;
-    private String endereco;
+    private String senha; //salvar a senha em formato BCryptPasswordEncoder ao inves de str
+
+    @ManyToOne
+    @JoinColumn(name = "endereco_id")
+    private Endereco endereco;
+
     private String telefone;
 
     @OneToMany(mappedBy = "academia", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -23,9 +23,6 @@ public class Cliente {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(length = 80, nullable = false)
-    private String senha; //salvar a senha em formato BCryptPasswordEncoder ao inves de str
-
     @Enumerated(EnumType.STRING)
     private Atividade status;
 
@@ -33,10 +30,9 @@ public class Cliente {
     @JoinColumn(name = "academia_id")
     private Academia academia;
 
-    public Cliente(String nome, String email, String senha, Academia academia) {
+    public Cliente(String nome, String email, Academia academia) {
         this.nome = nome;
         this.email = email;
-        this.senha = senha;
         this.academia = academia;
     }
 }

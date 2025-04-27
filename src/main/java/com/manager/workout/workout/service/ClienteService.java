@@ -15,8 +15,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class AlunoService {
-
+public class ClienteService {
     @Autowired
     private AlunoRepository alunoRepository;
 
@@ -71,7 +70,7 @@ public class AlunoService {
 
     @Transactional
     public void deleteClient(UUID id){
-        Cliente cliente = alunoRepository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"cliente nao foi encontrado"));
+        Cliente cliente = alunoRepository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"nao foi possivel excluir o cliente"));
 
         alunoRepository.delete(cliente);
     }
@@ -88,9 +87,6 @@ public class AlunoService {
         }
         if (requestClienteDto.academia() != null){
             cliente.setAcademia(requestClienteDto.academia());
-        }
-        if (requestClienteDto.senha() != null) {
-            cliente.setSenha(requestClienteDto.senha());
         }
         alunoRepository.save(cliente);
         return convertToResponseDto(cliente);
