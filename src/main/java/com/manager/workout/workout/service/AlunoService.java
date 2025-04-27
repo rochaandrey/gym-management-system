@@ -1,12 +1,14 @@
 package com.manager.workout.workout.service;
 
-import com.manager.workout.workout.dto.aluno.RequestAlunoDto;
-import com.manager.workout.workout.dto.aluno.ResponseAlunoDto;
-import com.manager.workout.workout.models.Aluno;
+import com.manager.workout.workout.dto.cliente.RequestClienteDto;
+import com.manager.workout.workout.dto.cliente.ResponseClienteDto;
+import com.manager.workout.workout.models.Cliente;
 import com.manager.workout.workout.repositories.AlunoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,52 +20,79 @@ public class AlunoService {
     @Autowired
     private AlunoRepository alunoRepository;
 
-    private ResponseAlunoDto convertToDto(Aluno aluno) {
-        return new ResponseAlunoDto(
-                aluno.getId(),
-                aluno.getNome(),
-                aluno.getEmail(),
-                aluno.getAcademia(),
-                aluno.getAtividade()
+    private ResponseClienteDto convertToResponseDto(Cliente cliente) {
+        return new ResponseClienteDto(
+                cliente.getId(),
+                cliente.getNome(),
+                cliente.getEmail(),
+                cliente.getAcademia(),
+                cliente.getStatus()
         );
     }
 
     @Transactional
-    public ResponseAlunoDto create(RequestAlunoDto requestAlunoDto){
-        Aluno aluno = requestAlunoDto.toEntity();
-        alunoRepository.save(aluno);
-        return requestAlunoDto.toResponseAlunoDto(aluno);
+    public ResponseClienteDto createClient(RequestClienteDto requestClienteDto){
+        Cliente cliente = requestClienteDto.toEntity();
+        alunoRepository.save(cliente);
+        return convertToResponseDto(cliente);
     }
 
-    public List<ResponseAlunoDto> getAll(){
+    public List<ResponseClienteDto> getAll(){
         return alunoRepository.findAll()
                 .stream()
-                .map(this::convertToDto)
+                .map(this::convertToResponseDto)
                 .toList();
     }
 
-    public Optional<ResponseAlunoDto> getById(UUID uuid){
+    public Optional<ResponseClienteDto> getClientById(UUID uuid){
         return alunoRepository.findById(uuid)
-                .map(this::convertToDto);
+                .map(this::convertToResponseDto);
     }
 
-    public List<ResponseAlunoDto> getByParams(String nome, String email){
+    public List<ResponseClienteDto> getClientByParams(String nome, String email){
         if(nome != null && email != null){
             return alunoRepository.findByNomeContainingIgnoreCaseAndEmail(nome, email)
                     .stream()
-                    .map(this::convertToDto)
+                    .map(this::convertToResponseDto)
                     .toList();
         } else if (nome != null) {
             return alunoRepository.findByNomeContainingIgnoreCase(nome)
                     .stream()
-                    .map(this::convertToDto)
+                    .map(this::convertToResponseDto)
                     .toList();
         } else if (email != null) {
             return alunoRepository.findByEmail(email)
                     .stream()
-                    .map(this::convertToDto)
+                    .map(this::convertToResponseDto)
                     .toList();
         }
         throw new IllegalArgumentException("invalid params");
+    }
+
+    @Transactional
+    public void deleteClient(UUID id){
+        Cliente cliente = alunoRepository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"cliente nao foi encontrado"));
+
+        alunoRepository.delete(cliente);
+    }
+
+    @Transactional
+    public ResponseClienteDto updateClient(UUID id, RequestClienteDto requestClienteDto){
+        Cliente cliente = alunoRepository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"cliente nao foi encontrado"));
+
+        if(requestClienteDto.nome() != null ){
+            cliente.setNome(requestClienteDto.nome());
+        }
+        if (requestClienteDto.email() != null) {
+            cliente.setEmail(requestClienteDto.email());
+        }
+        if (requestClienteDto.academia() != null){
+            cliente.setAcademia(requestClienteDto.academia());
+        }
+        if (requestClienteDto.senha() != null) {
+            cliente.setSenha(requestClienteDto.senha());
+        }
+        alunoRepository.save(cliente);
+        return convertToResponseDto(cliente);
     }
 }
