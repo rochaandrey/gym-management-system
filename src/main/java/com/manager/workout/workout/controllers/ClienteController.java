@@ -2,7 +2,7 @@ package com.manager.workout.workout.controllers;
 
 import com.manager.workout.workout.dto.cliente.RequestClienteDto;
 import com.manager.workout.workout.dto.cliente.ResponseClienteDto;
-import com.manager.workout.workout.repositories.AlunoRepository;
+import com.manager.workout.workout.repositories.ClienteRepository;
 import com.manager.workout.workout.service.ClienteService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -19,15 +19,15 @@ import java.util.UUID;
 public class ClienteController {
 
     @Autowired
-    private AlunoRepository alunoRepository;
+    private ClienteRepository clienteRepository;
 
     @Autowired
     private ClienteService clienteService;
 
     @PostMapping
-    public ResponseEntity<ResponseClienteDto> createClient(@RequestBody RequestClienteDto requestClienteDto, UriComponentsBuilder uriBuilder){
+    public ResponseEntity<ResponseClienteDto> createClient(@RequestBody RequestClienteDto requestClienteDto, UriComponentsBuilder uriComponentsBuilder){
         ResponseClienteDto responseClienteDto = clienteService.createClient(requestClienteDto);
-        var uri = uriBuilder
+        var uri = uriComponentsBuilder
                 .path("/api/aluno/{id}")
                 .buildAndExpand(responseClienteDto.uuid())
                 .toUri();
@@ -62,7 +62,7 @@ public class ClienteController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable (value = "id") UUID id){
         clienteService.deleteClient(id);
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}")

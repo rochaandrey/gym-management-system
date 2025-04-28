@@ -21,6 +21,7 @@ public class AcademiaService {
 
     private ResponseAcademiaDto convertToResponseDto(Academia academia){
         return new ResponseAcademiaDto(
+                academia.getId(),
                 academia.getNome(),
                 academia.getEmail(),
                 academia.getTelefone()

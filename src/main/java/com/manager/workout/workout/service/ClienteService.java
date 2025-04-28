@@ -3,7 +3,7 @@ package com.manager.workout.workout.service;
 import com.manager.workout.workout.dto.cliente.RequestClienteDto;
 import com.manager.workout.workout.dto.cliente.ResponseClienteDto;
 import com.manager.workout.workout.models.Cliente;
-import com.manager.workout.workout.repositories.AlunoRepository;
+import com.manager.workout.workout.repositories.ClienteRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,7 +17,7 @@ import java.util.UUID;
 @Service
 public class ClienteService {
     @Autowired
-    private AlunoRepository alunoRepository;
+    private ClienteRepository clienteRepository;
 
     private ResponseClienteDto convertToResponseDto(Cliente cliente) {
         return new ResponseClienteDto(
@@ -32,35 +32,35 @@ public class ClienteService {
     @Transactional
     public ResponseClienteDto createClient(RequestClienteDto requestClienteDto){
         Cliente cliente = requestClienteDto.toEntity();
-        alunoRepository.save(cliente);
+        clienteRepository.save(cliente);
         return convertToResponseDto(cliente);
     }
 
     public List<ResponseClienteDto> getAll(){
-        return alunoRepository.findAll()
+        return clienteRepository.findAll()
                 .stream()
                 .map(this::convertToResponseDto)
                 .toList();
     }
 
     public Optional<ResponseClienteDto> getClientById(UUID uuid){
-        return alunoRepository.findById(uuid)
+        return clienteRepository.findById(uuid)
                 .map(this::convertToResponseDto);
     }
 
     public List<ResponseClienteDto> getClientByParams(String nome, String email){
         if(nome != null && email != null){
-            return alunoRepository.findByNomeContainingIgnoreCaseAndEmail(nome, email)
+            return clienteRepository.findByNomeContainingIgnoreCaseAndEmail(nome, email)
                     .stream()
                     .map(this::convertToResponseDto)
                     .toList();
         } else if (nome != null) {
-            return alunoRepository.findByNomeContainingIgnoreCase(nome)
+            return clienteRepository.findByNomeContainingIgnoreCase(nome)
                     .stream()
                     .map(this::convertToResponseDto)
                     .toList();
         } else if (email != null) {
-            return alunoRepository.findByEmail(email)
+            return clienteRepository.findByEmail(email)
                     .stream()
                     .map(this::convertToResponseDto)
                     .toList();
@@ -70,14 +70,14 @@ public class ClienteService {
 
     @Transactional
     public void deleteClient(UUID id){
-        Cliente cliente = alunoRepository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"nao foi possivel excluir o cliente"));
+        Cliente cliente = clienteRepository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"nao foi possivel excluir o cliente"));
 
-        alunoRepository.delete(cliente);
+        clienteRepository.delete(cliente);
     }
 
     @Transactional
     public ResponseClienteDto updateClient(UUID id, RequestClienteDto requestClienteDto){
-        Cliente cliente = alunoRepository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"cliente nao foi encontrado"));
+        Cliente cliente = clienteRepository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"cliente nao foi encontrado"));
 
         if(requestClienteDto.nome() != null ){
             cliente.setNome(requestClienteDto.nome());
@@ -88,7 +88,7 @@ public class ClienteService {
         if (requestClienteDto.academia() != null){
             cliente.setAcademia(requestClienteDto.academia());
         }
-        alunoRepository.save(cliente);
+        clienteRepository.save(cliente);
         return convertToResponseDto(cliente);
     }
 }
