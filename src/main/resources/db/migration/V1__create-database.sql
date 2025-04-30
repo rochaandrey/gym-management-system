@@ -7,7 +7,7 @@ CREATE TABLE academia(
     senha VARCHAR(80) NOT NULL,
     telefone VARCHAR(30),
     endereco_id UUID NOT NULL,
-    FOREIGN KEY (endereco_id    ) REFERENCES endereco(id)
+    FOREIGN KEY (endereco_id) REFERENCES endereco(id)
 );
 
 CREATE TABLE endereco (
